@@ -1,0 +1,30 @@
+name: Daily Instagram Post
+
+on:
+  schedule:
+    # 毎日 11:00 UTC = 20:00 JST に実行
+    - cron: "0 11 * * *"
+  # 手動テスト用（Actions画面から「Run workflow」できる）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 にすると投稿せず内容だけ確認"
+        required: false
+        default: "0"
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Post to Instagram
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: node post.mjs

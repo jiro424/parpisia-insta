@@ -1,0 +1,31 @@
+{
+  "imageBaseUrl": "https://uipiki.github.io/parpisia-insta/images/",
+
+  "captionTemplate": "{title}\n\n{description}\n\n▶ ショップはプロフィールのリンクから✨\nハンドメイドのお供にどうぞ◎\n\n{hashtags}",
+
+  "defaultHashtags": "#ハンドメイド #手芸 #手芸用品 #ハンドメイド材料 #手作りアクセサリー #ものづくり #手芸好きさんと繋がりたい #Parpisia",
+
+  "_メモ": "1商品=1投稿。images に同じ商品の写真（アングル違い・色違い）を並べると、その枚数のカルーセルになります。画像はファイル名だけでOK（imageBaseUrl が自動で前に付きます）。images が空の商品は自動でスキップされます。",
+
+  "products": [
+    {
+      "title": "バレッタ金具",
+      "description": "髪をまとめるのにぴったりのバレッタ金具。サイズ・カラー展開も豊富です。",
+      "images": ["barrette-1.jpg", "barrette-2.jpg"],
+      "hashtags": "#バレッタ #ヘアアクセサリー #バレッタ金具",
+      "url": "（参考用：該当のAmazon/楽天URL。キャプションには出ません）"
+    },
+    {
+      "title": "フィッシュクリップ",
+      "description": "前髪やアレンジに便利なフィッシュクリップ。作品づくりにも◎",
+      "images": [],
+      "hashtags": "#フィッシュクリップ #ヘアクリップ"
+    },
+    {
+      "title": "カシメ",
+      "description": "レザークラフトや布小物の仕上げに。打ち具と合わせてどうぞ。",
+      "images": [],
+      "hashtags": "#カシメ #レザークラフト #革小物"
+    }
+  ]
+}
