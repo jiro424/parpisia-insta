@@ -22,7 +22,7 @@ parpisia-insta/
 ## 初回セットアップ（順番にやればOK）
 
 ### 1. GitHub リポジトリを作る
-- GitHub（uipiki）で **新規リポジトリ**を作成
+- GitHub（jiro424）で **新規リポジトリ**を作成
 - 名前は **`parpisia-insta`**、**Public（公開）** にする
   - ※ Pages で画像を配信するため公開が必要。商品画像が見えるだけなので問題ありません
 - このフォルダの中身を全部アップロード（ドラッグ＆ドロップ or git push）
@@ -33,7 +33,7 @@ parpisia-insta/
 ### 2. GitHub Pages を有効化（画像の公開URL用）
 - リポジトリの **Settings → Pages**
 - **Source: Deploy from a branch** → **Branch: `main` / `/ (root)`** を選んで Save
-- 数分後、`https://uipiki.github.io/parpisia-insta/images/ファイル名.jpg` で画像が見られるようになります
+- 数分後、`https://jiro424.github.io/parpisia-insta/images/ファイル名.jpg` で画像が見られるようになります
   - 1枚アップして、ブラウザでこのURLを開いて**画像が表示されるか**確認しておくと安心
 
 ### 3. アクセストークンを Secret に登録（安全な保管）
