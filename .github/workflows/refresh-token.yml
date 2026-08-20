@@ -1,0 +1,72 @@
+name: Refresh Token & Keep Alive
+
+# 目的（毎日の投稿を止めないための保守ワークフロー）
+#   1. Instagram のアクセストークン（60日で失効）を自動で更新し、Secret を入れ替える
+#   2. リポジトリに毎週コミットを残し、「60日間なにも操作が無いと
+#      スケジュール実行が自動停止される」GitHub の仕様を回避する
+#
+# 必要な設定：Secret「GH_PAT」（GitHubのアクセストークン）
+#   未設定のうちは何もせず終了するので、エラー通知は飛びません。
+
+on:
+  schedule:
+    # 毎週月曜 03:00 UTC = 12:00 JST
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # PAT があれば PAT で取得（=あとの push を本人名義にして「活動あり」と認識させる）
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Instagram トークンを更新して Secret を入れ替える
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "⏭ Secret「GH_PAT」が未設定のため、自動更新はスキップします。"
+            echo "   設定すると、毎週トークンが自動で更新されるようになります。"
+            exit 0
+          fi
+
+          res=$(curl -sS "https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${IG_ACCESS_TOKEN}")
+          new=$(echo "$res" | jq -r '.access_token // empty')
+          exp=$(echo "$res" | jq -r '.expires_in // 0')
+
+          if [ -z "$new" ]; then
+            echo "✖ トークンの更新に失敗しました。"
+            echo "  → すでに期限切れの可能性があります。その場合は Meta の画面で取り直してください。"
+            echo "  応答: $(echo "$res" | jq -c '.error // .')"
+            exit 1
+          fi
+
+          # 万一ログに出ても伏せ字になるようにマスクしておく
+          echo "::add-mask::$new"
+          gh secret set IG_ACCESS_TOKEN --body "$new" --repo "$GITHUB_REPOSITORY"
+          echo "✅ トークンを更新しました（これから約 $(( exp / 86400 )) 日間有効）"
+
+      - name: リポジトリを「活動中」にしてスケジュール停止を防ぐ
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "⏭ Secret「GH_PAT」が未設定のためスキップします。"
+            exit 0
+          fi
+
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git config user.name "Parpisia Bot"
+          git config user.email "jiro424@gmail.com"
+          git add .keepalive
+          git commit -m "keepalive: $(date -u +%F)" || { echo "変更なし"; exit 0; }
+          git push
+          echo "✅ 活動記録を更新しました（スケジュール停止の60日カウントをリセット）"

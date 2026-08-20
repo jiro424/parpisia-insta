@@ -68,11 +68,31 @@ parpisia-insta/
 - **投稿時間を変えたいとき**：`.github/workflows/daily-post.yml` の `cron: "0 11 * * *"` を変更
   （UTC表記。JST20時=UTC11時。例：JST12時にしたいなら `0 3 * * *`）
 
-## ⚠️ トークンの有効期限について（重要）
+## 🔁 自動メンテナンス（Refresh Token & Keep Alive）
 
-Instagram のアクセストークンは **約60日で期限切れ**になります。
-切れると投稿が止まるので、**2か月に1回くらい**トークンを取り直して、
-手順3の `IG_ACCESS_TOKEN`（Secret）を新しい値に**更新**してください。
+投稿が止まる原因は2つあり、どちらも `refresh-token.yml` が毎週まとめて面倒を見ます。
 
-> 自動更新（毎月トークンをリフレッシュして自動で入れ替える）も後から追加できます。
-> 必要になったら相談してください。
+| 止まる原因 | 対策 |
+|---|---|
+| Instagram トークンが **約60日で失効** | 毎週リフレッシュして `IG_ACCESS_TOKEN` を自動で入れ替える |
+| **60日間リポジトリの操作が無い**と GitHub がスケジュールを自動停止する | 毎週 `.keepalive` を更新してコミットし、カウントをリセットする |
+
+### 有効にする手順（最初の1回だけ）
+
+1. GitHub の **Settings → Developer settings → Personal access tokens → Fine-grained tokens** で
+   トークンを作成する
+   - **Repository access**：`parpisia-insta` のみ
+   - **Permissions**：`Secrets` → **Read and write**、`Contents` → **Read and write**
+   - **Expiration**：長め（1年など）
+2. リポジトリの **Settings → Secrets and variables → Actions** に登録
+   - **Name:** `GH_PAT` ／ **Secret:** 作成したトークン
+3. **Actions → Refresh Token & Keep Alive → Run workflow** で一度手動実行する
+
+> `GH_PAT` が未設定の間は、このワークフローは何もせず終了します（エラー通知は飛びません）。
+
+### ⚠️ 注意
+- トークンの更新は **期限が切れる前** にしかできません。切れてしまった場合は、
+  Meta の画面（Instagram API 設定 → アクセストークンを生成）で取り直して
+  `IG_ACCESS_TOKEN` を手動で入れ替えてください。
+- 「スケジュールを停止します」というメールが届いた場合は、**Actions の該当ワークフロー画面で
+  「Enable workflow」**を押せば再開できます。
